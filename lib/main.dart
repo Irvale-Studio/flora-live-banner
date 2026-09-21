@@ -18,6 +18,7 @@ class FloraDemoApp extends StatelessWidget {
         body: Center(
           child: FloraLiveBanner(
             onStart: () => debugPrint('Start Flora Live tapped'),
+            debugTime: double.tryParse(Uri.base.queryParameters['t'] ?? ''),
           ),
         ),
       ),

@@ -28,7 +28,12 @@ class FloraLiveBanner extends StatefulWidget {
     this.ctaLabel = 'Start Flora Live',
     this.speciesName = 'Monstera',
     this.fontFamily = 'Montserrat',
+    this.debugTime,
   });
+
+  /// When set (0..1), freezes the loop at that point instead of animating.
+  /// Used only for deterministic screenshots; leave null in production.
+  final double? debugTime;
 
   /// Called when the user taps the CTA.
   final VoidCallback? onStart;
@@ -63,11 +68,15 @@ class _FloraLiveBannerState extends State<FloraLiveBanner>
   @override
   void initState() {
     super.initState();
-    _c = AnimationController(vsync: this, duration: const Duration(seconds: 8))
-      ..repeat();
-    _recTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _recSecs = (_recSecs + 1) % 3600);
-    });
+    _c = AnimationController(vsync: this, duration: const Duration(seconds: 8));
+    if (widget.debugTime != null) {
+      _c.value = widget.debugTime!.clamp(0.0, 1.0);
+    } else {
+      _c.repeat();
+      _recTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() => _recSecs = (_recSecs + 1) % 3600);
+      });
+    }
   }
 
   @override
@@ -745,6 +754,29 @@ class _Room extends StatelessWidget {
                 ),
               ),
               child: CustomPaint(painter: _WindowBars()),
+            ),
+          ),
+          Positioned(
+            left: 20,
+            top: 20,
+            child: Transform.rotate(
+              angle: 16 * math.pi / 180,
+              alignment: Alignment.topLeft,
+              child: ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                child: Container(
+                  width: 120,
+                  height: 150,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x8CFFF9E8), Color(0x00FFF9E8)],
+                      stops: [0, .7],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           Positioned(
