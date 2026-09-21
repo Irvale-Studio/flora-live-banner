@@ -264,12 +264,22 @@ class _FloraLiveBannerState extends State<FloraLiveBanner>
         final resY = _seg(p, [0, .58, .64, .86, .94, 1], [8, 8, 0, 0, 8, 8]);
         final wakeO = _seg(p, [0, .08, .90, 1], [.9, 0, 0, .9]);
 
+        // OverflowBox lets the 210x150 world layers keep their real size
+        // instead of being clamped to the 108x134 tile (which left the frame
+        // half black after the camera transform).
         Widget layer(double tx, double ty, double s, Widget child) => Transform(
               alignment: Alignment.topLeft,
               transform: Matrix4.identity()
                 ..translate(tx, ty)
                 ..scale(s),
-              child: child,
+              child: OverflowBox(
+                alignment: Alignment.topLeft,
+                minWidth: 0,
+                maxWidth: double.infinity,
+                minHeight: 0,
+                maxHeight: double.infinity,
+                child: child,
+              ),
             );
 
         return SizedBox(
