@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -49,6 +50,8 @@ class FloraLiveBanner extends StatefulWidget {
 class _FloraLiveBannerState extends State<FloraLiveBanner>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c;
+  Timer? _recTimer;
+  int _recSecs = 4;
 
   // Kit tokens.
   static const _flora = Color(0xFF7321D7);
@@ -62,10 +65,14 @@ class _FloraLiveBannerState extends State<FloraLiveBanner>
     super.initState();
     _c = AnimationController(vsync: this, duration: const Duration(seconds: 8))
       ..repeat();
+    _recTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _recSecs = (_recSecs + 1) % 3600);
+    });
   }
 
   @override
   void dispose() {
+    _recTimer?.cancel();
     _c.dispose();
     super.dispose();
   }
@@ -471,6 +478,55 @@ class _FloraLiveBannerState extends State<FloraLiveBanner>
                           child: Transform.translate(
                             offset: Offset(0, resY),
                             child: _resultChip(),
+                          ),
+                        ),
+                      ),
+                      // ---- REC pill ----
+                      Positioned(
+                        top: 6,
+                        left: 6,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0x8C0A0610),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Opacity(
+                                opacity: 0.55 +
+                                    0.45 *
+                                        (0.5 +
+                                            0.5 *
+                                                math.cos((p * 8 / 1.4) % 1 *
+                                                    2 *
+                                                    math.pi)),
+                                child: Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFFF2D55)),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'REC ${_recSecs ~/ 60}:${(_recSecs % 60).toString().padLeft(2, '0')}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  height: 1,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.5,
+                                  fontFamily: widget.fontFamily,
+                                  fontFeatures: const [
+                                    ui.FontFeature.tabularFigures()
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
